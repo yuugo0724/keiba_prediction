@@ -1,0 +1,45 @@
+# ベースイメージの指定
+FROM python:3.9-slim
+
+# メタ情報
+LABEL maintainer="ygaoqiao742@gmail.com"
+LABEL version="1.0"
+LABEL description="keiba_prediction用のpythonイメージ"
+
+# rootのパスワード設定
+RUN echo "root:Cb8a0e1f-1784" | chpasswd
+
+# 環境変数
+ENV USER keiba
+
+# 一般権限のユーザを追加
+RUN useradd -m ${USER}
+# sudo権限を付与
+RUN gpasswd -a ${USER} sudo
+# パスワード設定
+RUN echo "${USER}:Cb8a0e1f-1784" | chpasswd
+# apt更新
+RUN apt update
+RUN apt list --upgradable
+# libgomp1のインストール
+RUN apt install libgomp1
+
+# ユーザの切り替え
+USER ${USER}
+
+# PATHを追加
+ENV PATH $PATH:/home/${USER}/.local/bin/
+# 作業ディレクトリを変更
+WORKDIR /tmp/work
+
+# pipでインストールするパッケージを記載したテキストファイル
+COPY requirements.txt ${PWD}
+# pipアップグレード
+RUN pip install --upgrade pip
+# pip実行
+RUN pip install -r requirements.txt
+
+# 作業ディレクトリを変更
+WORKDIR /home/hato
+# ソースコードを配置するディレクトリを作成
+RUN mkdir /home/hato/src/

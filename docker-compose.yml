@@ -1,0 +1,16 @@
+version: "3.9"
+services:
+  keiba_prediction:
+    container_name: keiba
+    image: keiba
+    build:
+      context: ./dockerfile
+      dockerfile: Dockerfile
+    volumes:
+      - ./src:/home/keiba/src
+    stdin_open: true
+    tty: true
+    command: /bin/bash
+    restart: always
+volumes:
+  src:
