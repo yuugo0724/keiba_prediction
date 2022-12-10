@@ -29,7 +29,9 @@ class CollGradesSpider(scrapy.Spider):
     race_info = re.sub(" ","",race_info)
     race_info = re.findall(r'\w+', race_info)
     race_meters = re.sub("\D","",race_info[0])
-    race_around = re.findall('右|左', race_info[0])
+    race_around = re.findall('右|左|障', race_info[0])
+    if not race_around:
+      race_around = ['']
     #race_type = race_info[0]
     race_weather = race_info[2]
     race_type = race_info[3]
