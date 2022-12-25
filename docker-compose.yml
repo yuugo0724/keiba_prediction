@@ -12,5 +12,17 @@ services:
     tty: true
     command: /bin/bash
     restart: always
+  scrapy:
+    container_name: keiba_scrapy
+    image: keiba_scrapy
+    build:
+      context: ./dockerfile
+      dockerfile: Dockerfile
+    volumes:
+      - ./src1:/home/keiba/src
+    stdin_open: true
+    tty: true
+    command: /bin/bash
 volumes:
   src:
+  src1:

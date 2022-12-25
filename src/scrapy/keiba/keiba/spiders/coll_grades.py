@@ -3,17 +3,21 @@ from scrapy.selector import Selector
 import pandas as pd
 import os
 import re
+import sys
+sys.path.append('../../')
+from modules.constants import DataFrameCols
 
 class CollGradesSpider(scrapy.Spider):
   name = 'coll_grades'
   allowed_domains = ['db.netkeiba.com']
   #start_urls = ["https://db.netkeiba.com/race/199201010701/"]
-  def __init__(self, url, race_id, date_dir, data_grades_dir, *args, **kwargs):
+  df_cols = DataFrameCols()
+  scrapy_grades_cols = df_cols.scrapy_grades_cols()
+  def __init__(self, url, race_id, date_dir, *args, **kwargs):
     super(CollGradesSpider, self).__init__(*args, **kwargs)
     self.start_urls = [url]
     self.race_id = race_id
     self.date_dir = date_dir
-    self.data_grades_dir = data_grades_dir
 
   def map_split_str(self, str_data):
     str_data_list = re.findall(r'\w+', str_data)
@@ -21,21 +25,22 @@ class CollGradesSpider(scrapy.Spider):
   
   def parse(self, response):
     sel = Selector(response)
-    cols = ["レースID","レース名","距離","回り","天候","タイプ","馬場状態","着順","枠番","馬番","馬名","性齢","斥量","騎手","タイム","単勝","人気","馬体重","馬体重増減","調教師","馬ID","調教師ID"]
+    cols = self.scrapy_grades_cols
     df = pd.DataFrame(columns=cols)
     race_header = sel.css("div[class='netkeiba_toprace_block'] div[class='race_head_inner'] diary_snap dl[class='racedata fc']")
     race_name = sel.css("dd>h1::text").get()
     race_info = sel.css("dd p diary_snap_cut span::text").get()
-    race_info = re.sub(" ","",race_info)
-    race_info = re.findall(r'\w+', race_info)
-    race_meters = re.sub("\D","",race_info[0])
-    race_around = re.findall('右|左|障', race_info[0])
-    if not race_around:
-      race_around = ['']
-    #race_type = race_info[0]
-    race_weather = race_info[2]
-    race_type = race_info[3]
-    race_status = race_info[4]
+    race_info = race_info.replace(u'\xa0', u' ')
+#    race_info = re.sub(" ","",race_info)
+#    race_info = re.findall(r'\w+', race_info)
+#    race_meters = re.sub("\D","",race_info[0])
+#    race_around = re.findall('右|左|障', race_info[0])
+#    if not race_around:
+#      race_around = ['']
+#    #race_type = race_info[0]
+#    #race_weather = race_info[2]
+#    race_type = re.findall('芝|ダート|ダ|障', race_info[0])
+#    race_status = race_info[4]
     result_data = sel.css("table[summary='レース結果'] tr")
     # レースがない場合、処理を終了
     if not result_data:
@@ -53,6 +58,8 @@ class CollGradesSpider(scrapy.Spider):
       age = result_td[4].css("::text").get()
       load = result_td[5].css("::text").get()
       jockey = result_td[6].css("a::text").get()
+      jockey_id_info = result_td[6].css("a::attr(href)").get()
+      jockey_id = ''.join(re.findall(r'\d+',jockey_id_info))
       time = result_td[7].css("::text").get()
       chakusa = result_td[8].css("::text").get()
       keika = result_td[10].css("::text").get()
@@ -72,11 +79,12 @@ class CollGradesSpider(scrapy.Spider):
       list_append = [[
         self.race_id,
         race_name,
-        race_meters,
-        race_around[0],
-        race_weather,
-        race_type,
-        race_status,
+        race_info,
+#        race_meters,
+#        race_around[0],
+        #race_weather,
+#        race_type,
+#        race_status,
         rank,
         waku_num,
         horse_num,
@@ -91,7 +99,9 @@ class CollGradesSpider(scrapy.Spider):
         weight_inc_dec,
         trainer,
         horse_id,
-        trainer_id]]
+        jockey_id,
+        trainer_id
+        ]]
       df_append = pd.DataFrame(data=list_append,columns=cols)
       df = pd.concat([df, df_append], ignore_index=True, axis=0)
     df.to_pickle(os.path.join(self.date_dir,self.race_id))

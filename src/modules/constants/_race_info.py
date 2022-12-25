@@ -62,3 +62,9 @@ class RaceInfo:
     '87':'チャーチ',
     '88':'サンダウ'
     })
+
+  RACE_TYPE_DICT: dict = MappingProxyType({
+    '芝':'芝',
+    'ダ':'ダート',
+    '障':'障害'
+    })

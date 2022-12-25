@@ -40,6 +40,6 @@ RUN pip install --upgrade pip
 RUN pip install -r requirements.txt
 
 # 作業ディレクトリを変更
-WORKDIR /home/hato
+WORKDIR /home/${USER}
 # ソースコードを配置するディレクトリを作成
-RUN mkdir /home/hato/src/
+RUN mkdir /home/${USER}/src/
