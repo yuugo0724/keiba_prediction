@@ -27,7 +27,7 @@ class create_dataframe:
       df_list.append(df_tmp)
     df = pd.concat(df_list)
     df = df.reset_index(drop=True)
-    df.to_pickle(self.lps.DATA_GRADES_MASTER)
+    df.to_pickle(self.lps.DATA_GRADES_MASTER, compression='zip')
   
   def create_master_horseid(self,grades_master):
     df_horse_id_master = grades_master[[self.df_cols.HORSE_ID,self.df_cols.HORSE_NAME]]
