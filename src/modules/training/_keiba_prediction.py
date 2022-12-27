@@ -95,7 +95,7 @@ class data_training:
       'task': 'train',  #トレーニング用
       #'boosting_type': 'gbdt',  #勾配ブースティング決定木
       'objective': 'binary',  #目的：二値分類
-      'metric': 'auc',  #評価指標はAUC
+      'metric': 'binary_logloss',  #評価指標はAUC
       'verbosity': -1, # ログ出力なし
       #'num_iterations': 100
     }

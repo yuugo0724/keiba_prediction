@@ -57,6 +57,7 @@ class dataframe_grades:
     self.grades_master[self.df_cols.RACE_AROUND] = race_info_around
     self.grades_master[self.df_cols.RACE_TYPE] = race_info_type
     self.grades_master[self.df_cols.RACE_STATUS] = race_info_status
+    self.grades_master = self.grades_master[self.grades_master[self.df_cols.RACE_AROUND] != '']
   
   def pred_split_raceinfo(self):
     race_info_list = self.grades_master[self.df_cols.RACE_INFO]
@@ -330,6 +331,8 @@ class dataframe_grades:
       sampling_value = [count_y,count_y * 2]
     else:
       sampling_value = [count_y] * len(y_train_min_list)
+#      sampling_value = [count_y] * (len(y_train_min_list) - 1)
+      sampling_value.append(count_y * 2)
     sampling_dict = dict(zip(sampling_key,sampling_value))
     rus = RandomUnderSampler(sampling_strategy=sampling_dict)
     x_train_rus, y_train_rus = rus.fit_resample(self.x_train, self.y_train)
