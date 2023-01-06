@@ -135,8 +135,37 @@ class dataframe_grades:
 #    print("■select_place_name")
 #    print(self.grades_master)
 
-  def select_G_race(self):
-    self.grades_master = self.grades_master[self.grades_master[self.df_cols.RACE_NAME].str.contains('G1|G2|G3')]
+  def add_G_race(self):
+#    self.grades_master[self.df_cols.G1] = 0
+#    self.grades_master[self.df_cols.G2] = 0
+#    self.grades_master[self.df_cols.G3] = 0
+    juushou_list = []
+    for current_dir, sub_dirs, files_list in os.walk(self.lps.DATA_JUUSHOU_DIR):
+      for file in files_list:
+        juushou_list.append(os.path.join(current_dir,file))
+    df_juushou = pd.DataFrame(columns=self.df_cols.juushou_cols())
+    for juushou_file in juushou_list:
+      df_tmp = pd.read_pickle(juushou_file)
+      df_juushou = pd.concat([df_juushou,df_tmp], ignore_index=True, axis=0)
+    df_juushou = df_juushou.reset_index(drop=True)
+    df_g1 = pd.DataFrame(columns=[self.df_cols.RACE_ID,self.df_cols.G1])
+    df_g2 = pd.DataFrame(columns=[self.df_cols.RACE_ID,self.df_cols.G2])
+    df_g3 = pd.DataFrame(columns=[self.df_cols.RACE_ID,self.df_cols.G3])
+    df_g1[self.df_cols.RACE_ID] = df_juushou[self.df_cols.RACE_ID][df_juushou[self.df_cols.KAKU] == self.df_cols.G1]
+    df_g1[self.df_cols.G1] = 1
+    df_g2[self.df_cols.RACE_ID] = df_juushou[self.df_cols.RACE_ID][df_juushou[self.df_cols.KAKU] == self.df_cols.G2]
+    df_g2[self.df_cols.G2] = 1
+    df_g3[self.df_cols.RACE_ID] = df_juushou[self.df_cols.RACE_ID][df_juushou[self.df_cols.KAKU] == self.df_cols.G3]
+    df_g3[self.df_cols.G3] = 1
+    self.grades_master = pd.merge(self.grades_master, df_g1, on = self.df_cols.RACE_ID, how = 'left')
+    self.grades_master = pd.merge(self.grades_master, df_g2, on = self.df_cols.RACE_ID, how = 'left')
+    self.grades_master = pd.merge(self.grades_master, df_g3, on = self.df_cols.RACE_ID, how = 'left')
+    self.grades_master[self.df_cols.G1] = self.grades_master[self.df_cols.G1].fillna(0)
+    self.grades_master[self.df_cols.G2] = self.grades_master[self.df_cols.G2].fillna(0)
+    self.grades_master[self.df_cols.G3] = self.grades_master[self.df_cols.G3].fillna(0)
+#    self.grades_master[self.df_cols.G1][self.grades_master[self.df_cols.RACE_ID].str.contains('G1')] = 1
+#    self.grades_master[self.df_cols.G2][self.grades_master[self.df_cols.RACE_ID].str.contains('G2')] = 1
+#    self.grades_master[self.df_cols.G3][self.grades_master[self.df_cols.RACE_ID].str.contains('G3')] = 1
   
   def select_race_type(self, race_type: list = ['芝','ダート','障']):
     self.grades_master = self.grades_master[self.grades_master[self.df_cols.RACE_TYPE].isin(race_type)]
@@ -235,8 +264,8 @@ class dataframe_grades:
     self.grades_master.loc[self.grades_master[self.df_cols.RANK]>5,[self.df_cols.RANK]] = 5
 
   def setting_binaryclass(self):
-    self.grades_master.loc[self.grades_master[self.df_cols.RANK]<4,[self.df_cols.RANK]] = 0
-    self.grades_master.loc[self.grades_master[self.df_cols.RANK]>3,[self.df_cols.RANK]] = 1
+    self.grades_master.loc[self.grades_master[self.df_cols.RANK]<=3,[self.df_cols.RANK]] = 0
+    self.grades_master.loc[self.grades_master[self.df_cols.RANK]>=4,[self.df_cols.RANK]] = 1
 
   def update_dummies(self):
     self.grades_master = pd.get_dummies(self.grades_master,columns=self.df_cols.dummies_cols())
@@ -366,7 +395,7 @@ class dataframe_grades:
     print(self.grades_master)
   
   def output_grades_master(self):
-    self.grades_master[self.grades_master['回り']==''].to_csv('/home/keiba/src/data/tmp/grades_master.csv')
+    self.grades_master.to_csv('/home/keiba/src/data/tmp/grades_master.csv')
   
   def tmp_del_shougai(self):
     self.grades_master = self.grades_master[self.grades_master[self.df_cols.RACE_AROUND]!='障']

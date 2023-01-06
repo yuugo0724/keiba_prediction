@@ -33,7 +33,12 @@ class DataFrameCols:
   SEX: str = '性'
   AGE: str = '齢'
   PLACE: str = '競馬場'
-
+  G1: str = 'G1'
+  G2: str = 'G2'
+  G3: str = 'G3'
+  KAKU: str = '格'
+  CONDITIONS: str = '条件'
+  RACE_DATE: str = '日付'
   HORSEID_LABEL: str = '馬ID_LABEL'
   JOCKEYID_LABEL: str = '騎手ID_LABEL'
   TRAINERID_LABEL: str = '調教師ID_LABEL'
@@ -83,7 +88,10 @@ class DataFrameCols:
                             self.WEIGHT_INC_DEC,
                             self.TRAINER_NAME,
                             self.SEX,
-                            self.AGE
+                            self.AGE,
+                            self.G1,
+                            self.G2,
+                            self.G3
                           ]
     return COL_DATAFRAME
 
@@ -103,7 +111,10 @@ class DataFrameCols:
                             self.WEIGHT_INC_DEC,
                             self.TRAINER_NAME,
                             self.SEX,
-                            self.AGE
+                            self.AGE,
+                            self.G1,
+                            self.G2,
+                            self.G3
                           ]
     return COL_DATAFRAME
 
@@ -123,7 +134,10 @@ class DataFrameCols:
                             self.WEIGHT_INC_DEC,
                             self.TRAINER_ID,
                             self.SEX,
-                            self.AGE
+                            self.AGE,
+                            self.G1,
+                            self.G2,
+                            self.G3
                           ]
     return COL_DATAFRAME
 
@@ -143,7 +157,10 @@ class DataFrameCols:
                             self.WEIGHT_INC_DEC,
                             self.TRAINER_ID,
                             self.SEX,
-                            self.AGE
+                            self.AGE,
+                            self.G1,
+                            self.G2,
+                            self.G3
                           ]
     return COL_DATAFRAME
 
@@ -210,7 +227,10 @@ class DataFrameCols:
                             self.WEIGHT_INC_DEC,
                             self.TRAINER_NAME,
                             self.SEX,
-                            self.AGE
+                            self.AGE,
+                            self.G1,
+                            self.G2,
+                            self.G3
                           ]
     return COL_DATAFRAME
 
@@ -222,4 +242,16 @@ class DataFrameCols:
                           ]
     return COL_DATAFRAME
   
-
+  def juushou_cols(self):
+    COL_DATAFRAME: list = [
+                            self.RACE_ID,
+                            self.RACE_DATE,
+                            self.RACE_NAME,
+                            self.KAKU,
+                            self.PLACE,
+                            self.RACE_METERS,
+                            self.CONDITIONS,
+                            self.WEIGHT
+                          ]
+    return COL_DATAFRAME
+  

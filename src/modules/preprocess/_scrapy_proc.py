@@ -117,4 +117,21 @@ class scrapy_proc:
       scrapy_proc = subprocess.Popen(scrapy_cmd, stdout=f, stderr=f)
       scrapy_proc.wait()
     os.chdir(self.lps.BASE_DIR)
-    
+
+  def coll_eval_grades(self, pred_url):
+    os.chdir(self.lps.SCRAPY_KEIBA_DIR)
+    with open(self.lps.LOG_COLL_EVAL_GRADES, 'w') as f:
+      scrapy_cmd = ["python3",self.lps.PROC_COLL_EVAL_GRADES,pred_url,self.lps.DATA_TMP_DIR]
+      scrapy_proc = subprocess.Popen(scrapy_cmd, stdout=f, stderr=f)
+      scrapy_proc.wait()
+    os.chdir(self.lps.BASE_DIR)
+
+  def coll_juushou(self, juushou_date_list, data_juushou):
+    os.chdir(self.lps.SCRAPY_KEIBA_DIR)
+    with open(self.lps.LOG_COLL_JUUSHOU, 'w') as f:
+      for juushou_year in juushou_date_list:
+        data_juushou_list = data_juushou + juushou_year
+        scrapy_cmd = ["python3",self.lps.PROC_COLL_JUUSHOU,juushou_year,data_juushou_list]
+        scrapy_proc = subprocess.Popen(scrapy_cmd, stdout=f, stderr=f)
+        scrapy_proc.wait()
+    os.chdir(self.lps.BASE_DIR)

@@ -20,6 +20,7 @@ class LocalPaths:
   DATA_PEDIGREE_DIR: str = os.path.join(DATA_DIR, 'pedigree')
   DATA_MASTER_DIR: str = os.path.join(DATA_DIR, 'master')
   DATA_PRED_DIR: str = os.path.join(DATA_DIR, 'pred')
+  DATA_JUUSHOU_DIR: str = os.path.join(DATA_DIR, 'juushou')
   """
   modelsディレクトリ
   """
@@ -40,6 +41,7 @@ class LocalPaths:
   DATA_JOCKEY_ID_MASTER: str = os.path.join(DATA_MASTER_DIR, 'jockey_id')
   DATA_TRAINER_ID_MASTER: str = os.path.join(DATA_MASTER_DIR, 'trainer_id')
   DATA_TMP_PRED: str = os.path.join(DATA_TMP_DIR, 'pred_race_grades')
+  DATA_JUUSHOU_LIST: str = os.path.join(DATA_JUUSHOU_DIR, 'juushou_list_')
   """
   プログラムのパス
   """
@@ -48,6 +50,8 @@ class LocalPaths:
   PROC_COLL_HORSE_GRADES: str = os.path.join(SCRAPY_KEIBA_DIR, 'coll_horse_grades.py')
   PROC_COLL_PEDIGREE: str = os.path.join(SCRAPY_KEIBA_DIR, 'coll_pedigree.py')
   PROC_COLL_PRED_GRADES: str = os.path.join(SCRAPY_KEIBA_DIR, 'coll_pred_grades.py')
+  PROC_COLL_EVAL_GRADES: str = os.path.join(SCRAPY_KEIBA_DIR, 'coll_eval_grades.py')
+  PROC_COLL_JUUSHOU: str = os.path.join(SCRAPY_KEIBA_DIR, 'coll_juushou.py')
   
   """
   ログのパス
@@ -57,6 +61,8 @@ class LocalPaths:
   LOG_COLL_HORSE_GRADES: str = os.path.join(SCRAPY_KEIBA_DIR, 'coll_horse_grades.log')
   LOG_COLL_PEDIGREE: str = os.path.join(SCRAPY_KEIBA_DIR, 'coll_pedigree.log')
   LOG_COLL_PRED_GRADES: str = os.path.join(SCRAPY_KEIBA_DIR, 'coll_pred_grades.log')
+  LOG_COLL_EVAL_GRADES: str = os.path.join(SCRAPY_KEIBA_DIR, 'coll_eval_grades.log')
+  LOG_COLL_JUUSHOU: str = os.path.join(SCRAPY_KEIBA_DIR, 'coll_juushou.log')
 
   """
   ラベルエンコーディング

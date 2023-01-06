@@ -11,7 +11,7 @@ services:
     stdin_open: true
     tty: true
     command: /bin/bash
-    restart: always
+#    restart: always
   scrapy:
     container_name: keiba_scrapy
     image: keiba_scrapy

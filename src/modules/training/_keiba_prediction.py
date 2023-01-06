@@ -36,12 +36,12 @@ class data_training:
 
   def lgb_multiclass_3(self):
     params = {
-      'task': 'train',  #トレーニング用
-      'boosting_type': 'gbdt',  #勾配ブースティング決定木
-      'objective': 'multiclass',  #目的：多クラス分類
-      'num_class': 4,   #分類クラス数
-      'metric': 'multi_logloss',  #評価指標は多クラスのLog損失
-      'verbosity': -1 # ログ出力なし
+      'task': 'train',            # トレーニング用
+      'boosting_type': 'gbdt',    # 勾配ブースティング決定木
+      'objective': 'multiclass',  # 目的：多クラス分類
+      'num_class': 4,             # 分類クラス数
+      'metric': 'multi_logloss',  # 評価指標は多クラスのLog損失
+      'verbosity': -1             # ログ出力なし
     }
     # ハイパーパラメータの自動調整
     # 調整後のパラメータ : best_params
@@ -64,23 +64,24 @@ class data_training:
 
   def lgb_multiclass_5(self):
     params = {
-      'task': 'train',  #トレーニング用
-      'boosting_type': 'gbdt',  #勾配ブースティング決定木
-      'objective': 'multiclass',  #目的：多クラス分類
-      'num_class': 6,   #分類クラス数
-      'metric': 'multi_logloss',  #評価指標は多クラスのLog損失
-      'verbosity': -1 # ログ出力なし
+      'task': 'train',            # トレーニング用
+      'boosting_type': 'gbdt',    # 勾配ブースティング決定木
+      'objective': 'multiclass',  # 目的：多クラス分類
+      'num_class': 6,             # 分類クラス数
+      'metric': 'multi_logloss',  # 評価指標は多クラスのLog損失
+      'verbosity': -1             # ログ出力なし
     }
     # ハイパーパラメータの自動調整
     # 調整後のパラメータ : best_params
     # 調整過程のパラメータ : history
-    self.model = lgb.train(params,
-                      self.lgb_train,
-                      valid_sets = [self.lgb_train,self.lgb_eval],
-                      valid_names=['train', 'valid'],
-    #                  num_boost_round = 100,
-                      early_stopping_rounds=10,
-                      evals_result=self.history
+    self.model = lgb.train(params,                                  # 学習の経過を保存する変数
+                      self.lgb_train,                               # データセット
+                      valid_sets = [self.lgb_train,self.lgb_eval],  # モデル検証のデータセット
+                      valid_names=['train', 'valid'],               # 学習経過で表示する名所
+    #                  num_boost_round = 100,                       # 学習の回数
+                      early_stopping_rounds = 10,                   # アーリーストッピング
+                      verbose_eval = 100,                           # 学習の経過の表示(100回毎)
+                      evals_result=self.history                     # 学習の経過を保存
                       )
     self.best_params = self.model.params
     # モデルを保存
@@ -92,11 +93,11 @@ class data_training:
 
   def lgb_binaryclass(self):
     params = {
-      'task': 'train',  #トレーニング用
-      #'boosting_type': 'gbdt',  #勾配ブースティング決定木
-      'objective': 'binary',  #目的：二値分類
-      'metric': 'binary_logloss',  #評価指標はAUC
-      'verbosity': -1, # ログ出力なし
+      'task': 'train',             # トレーニング用
+      'boosting_type': 'gbdt',    # 勾配ブースティング決定木
+      'objective': 'binary',       # 目的：二値分類
+      'metric': 'binary_logloss',  # 評価指標はAUC
+      #'verbosity': -1,             # ログ出力なし
       #'num_iterations': 100
     }
     # ハイパーパラメータの自動調整
@@ -112,7 +113,7 @@ class data_training:
                       verbose_eval=verbose_eval, # 100イテレーション毎に学習結果を出力
                       valid_sets = [self.lgb_train,self.lgb_eval],
                       valid_names=['train', 'valid'],
-                      num_boost_round = 10,
+#                      num_boost_round = 10,
                       early_stopping_rounds=10,
 #                      callbacks=callbacks,
                       evals_result=self.history
@@ -176,7 +177,8 @@ class data_training:
     print(cm.to_markdown())
 
   def show_binaryclass_mixed_array(self):
-    cm = confusion_matrix(self.y_test, self.y_pred, labels=[0, 1])
+#    cm = confusion_matrix(self.y_test, self.y_pred, labels=[0, 1])
+    cm = confusion_matrix(self.y_test, self.y_pred)
     columns_labels = ['pred_1着','pred_その他']
     index_labels = ['act_1着','act_その他']
     cm = pd.DataFrame(cm, columns=columns_labels, index=index_labels)

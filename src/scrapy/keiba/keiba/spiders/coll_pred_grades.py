@@ -7,14 +7,14 @@ import sys
 sys.path.append('../../')
 from modules.constants import DataFrameCols
 
-class CollPredGradesSpider(scrapy.Spider):
+class CollEvalGradesSpider(scrapy.Spider):
   name = 'coll_pred_grades'
   allowed_domains = ['db.netkeiba.com']
   #start_urls = ["https://db.netkeiba.com/race/199201010701/"]
   df_cols = DataFrameCols()
   pred_data_cols = df_cols.pred_data_cols()
   def __init__(self, url, pred_dir, *args, **kwargs):
-    super(CollPredGradesSpider, self).__init__(*args, **kwargs)
+    super(CollEvalGradesSpider, self).__init__(*args, **kwargs)
     self.start_urls = [url]
     self.pred_dir = pred_dir
     race_id_info = re.findall(r'\d+',url)
