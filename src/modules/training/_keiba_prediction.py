@@ -1,6 +1,7 @@
 import pandas as pd
 import numpy as np
 import pickle
+import json
 import matplotlib.pyplot as plt
 from optuna.integration import lightgbm as lgb
 from sklearn.metrics import accuracy_score
@@ -25,6 +26,7 @@ class data_training:
     self.best_params = {}
     self.history = {}
     self.y_pred = []
+    self.pred_data = ""
 
   def train_lgb(self):
     train_dict = {
@@ -96,7 +98,8 @@ class data_training:
       'task': 'train',             # トレーニング用
       'boosting_type': 'gbdt',    # 勾配ブースティング決定木
       'objective': 'binary',       # 目的：二値分類
-      'metric': 'binary_logloss',  # 評価指標はAUC
+      'metric': 'auc',  # 評価指標はAUC
+      #'metric': 'binary_logloss',  # 評価指標はbinary_logloss
       #'verbosity': -1,             # ログ出力なし
       #'num_iterations': 100
     }
@@ -114,7 +117,7 @@ class data_training:
                       valid_sets = [self.lgb_train,self.lgb_eval],
                       valid_names=['train', 'valid'],
 #                      num_boost_round = 10,
-                      early_stopping_rounds=10,
+                      early_stopping_rounds=100,
 #                      callbacks=callbacks,
                       evals_result=self.history
                       )
@@ -127,6 +130,25 @@ class data_training:
     pickle.dump(self.history, open(self.tdp.DATA_PARAMETER_HISTORY, 'wb'))
 
   def load_parameter(self):
+    parameter_dict = {
+      self.tdp.MODEL_MULTICLASS_3:self.load_parameter_multiclass,
+      self.tdp.MODEL_MULTICLASS_5:self.load_parameter_multiclass,
+      self.tdp.MODEL_BINARYCLASS:self.load_parameter_binaryclass
+    }
+    parameter_dict[self.tdp.MODEL_TYPE]()
+
+  def load_parameter_binaryclass(self):
+    self.model = pickle.load(open(self.tdp.MODELS_MODEL, 'rb'))
+    self.best_params = pickle.load(open(self.tdp.DATA_PARAMETER_BESTPARAMS, 'rb'))
+    self.history = pickle.load(open(self.tdp.DATA_PARAMETER_HISTORY, 'rb'))
+    preds = self.model.predict(self.x_test, num_iteration=self.model.best_iteration)
+    pred_threshold = 0
+    self.y_pred = []
+    for pred in preds:
+      pred = pred + pred_threshold
+      self.y_pred.append(round(pred))
+
+  def load_parameter_multiclass(self):
     self.model = pickle.load(open(self.tdp.MODELS_MODEL, 'rb'))
     self.best_params = pickle.load(open(self.tdp.DATA_PARAMETER_BESTPARAMS, 'rb'))
     self.history = pickle.load(open(self.tdp.DATA_PARAMETER_HISTORY, 'rb'))
@@ -257,6 +279,8 @@ class data_training:
   def show_graph_bainaryclass(self):
     plt.plot(self.history["train"]["auc"], color = "red", label = "train")
     plt.plot(self.history["valid"]["auc"], color = "blue", label = "valid")
+    #plt.plot(self.history["train"]["binary_logloss"], color = "red", label = "train")
+    #plt.plot(self.history["valid"]["binary_logloss"], color = "blue", label = "valid")
     plt.legend()
     plt.show()
   
@@ -282,8 +306,32 @@ class data_training:
       print(str(i+1) + "着:" + pred_df[self.df_cols.HORSE_NAME].iloc[rank])
 
   def model_predict_detail(self, pred_data):
+    self.pred_data = pred_data
+    predict_detail_dict = {
+      self.tdp.MODEL_MULTICLASS_3:self.model_predict_detail_multiclass,
+      self.tdp.MODEL_MULTICLASS_5:self.model_predict_detail_multiclass,
+      self.tdp.MODEL_BINARYCLASS:self.model_predict_detail_binaryclass
+    }
+    predict_detail_dict[self.tdp.MODEL_TYPE]()
+
+  def model_predict_detail_binaryclass(self):
     self.load_parameter()
-    predict_data_info = self.model.predict(pred_data)
+    predict_data_info = self.model.predict(self.pred_data)
+    pred_df = pd.read_pickle(self.lps.DATA_TMP_PRED)
+    pred_cols_df = pd.read_pickle(self.tdp.DATA_TRAINDATA_YTRAIN)
+    pred_cols = list(pred_cols_df.drop_duplicates())
+    pred_cols.sort()
+    pred_detail_df = pd.DataFrame(predict_data_info,index=pred_df[self.df_cols.HORSE_NAME].values,columns=["1着"])
+#    pred_detail_df = pd.DataFrame(predict_data_info,index=[pred_df[self.df_cols.HORSE_NAME].values],columns=["1着"])
+    print(pred_detail_df)
+#    dict_pred = pred_detail_df.to_dict()
+#    with open(self.tdp.PRED_JSON, 'w') as f:
+#      json.dump(dict_pred, f)
+    pred_detail_df.to_json(self.tdp.PRED_JSON, orient='columns', force_ascii=False)
+    
+  def model_predict_detail_multiclass(self):
+    self.load_parameter()
+    predict_data_info = self.model.predict(self.pred_data)
     pred_df = pd.read_pickle(self.lps.DATA_TMP_PRED)
     pred_cols_df = pd.read_pickle(self.tdp.DATA_TRAINDATA_YTRAIN)
     pred_cols = list(pred_cols_df.drop_duplicates())
@@ -296,6 +344,8 @@ class data_training:
         col = "その他"
       pred_cols_list.append(col)
     #pred_cols = ['1着','2着','3着','その他']
+    print(pred_cols_list)
+    print(predict_data_info)
     pred_detail_df = pd.DataFrame(predict_data_info,index=[pred_df[self.df_cols.HORSE_NAME].values],columns=[pred_cols_list])
     print(pred_detail_df)
     pred_detail_df.to_json(self.tdp.PRED_JSON, force_ascii=False)
@@ -313,3 +363,14 @@ class data_training:
     predict_data_info = self.model.predict(pred_data)
     print(predict_data_info)
   
+  def test(self):
+    self.model = pickle.load(open(self.tdp.MODELS_MODEL, 'rb'))
+    self.best_params = pickle.load(open(self.tdp.DATA_PARAMETER_BESTPARAMS, 'rb'))
+    self.history = pickle.load(open(self.tdp.DATA_PARAMETER_HISTORY, 'rb'))
+    preds = self.model.predict(self.x_test, num_iteration=self.model.best_iteration)
+    self.y_pred = []
+    threshold = 0.7
+    for pred in preds:
+      print(pred)
+      print(round(pred))
+    #print(self.y_pred)

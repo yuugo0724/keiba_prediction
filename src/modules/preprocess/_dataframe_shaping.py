@@ -264,8 +264,10 @@ class dataframe_grades:
     self.grades_master.loc[self.grades_master[self.df_cols.RANK]>5,[self.df_cols.RANK]] = 5
 
   def setting_binaryclass(self):
-    self.grades_master.loc[self.grades_master[self.df_cols.RANK]<=3,[self.df_cols.RANK]] = 0
-    self.grades_master.loc[self.grades_master[self.df_cols.RANK]>=4,[self.df_cols.RANK]] = 1
+    self.grades_master.loc[self.grades_master[self.df_cols.RANK]==1,[self.df_cols.RANK]] = 0
+    self.grades_master.loc[self.grades_master[self.df_cols.RANK]>1,[self.df_cols.RANK]] = 1
+#    self.grades_master.loc[self.grades_master[self.df_cols.RANK]<=3,[self.df_cols.RANK]] = 0
+#    self.grades_master.loc[self.grades_master[self.df_cols.RANK]>=4,[self.df_cols.RANK]] = 1
 
   def update_dummies(self):
     self.grades_master = pd.get_dummies(self.grades_master,columns=self.df_cols.dummies_cols())
